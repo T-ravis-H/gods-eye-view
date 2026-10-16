@@ -158,6 +158,27 @@ function encodeFeed({
   return writer.finish();
 }
 
+test('MBTA binary snapshots retain default route trimming for mode classification', () => {
+  const feed = getTransitFeed('mbta');
+  const snapshot = buildTransitSnapshot(
+    feed,
+    encodeFeed({
+      entities: [{ id: 'v1', routeId: ' Green-B ', lat: 42.3, lon: -71.1 }],
+    }),
+    1_700_000_002_000,
+  );
+  assert.equal(snapshot.count, 1);
+  const [vehicle] = snapshot.vehicles;
+  assert.deepEqual(
+    [
+      vehicle.routeId,
+      transitModeFor(feed, vehicle.routeId),
+      transitModeResolved(feed, vehicle.routeId),
+    ],
+    ['Green-B', 'tram', true],
+  );
+});
+
 test('RTD binary snapshots preserve route identity, mode and individual fix ages', () => {
   const feed = getTransitFeed('rtd-denver');
   const timestamp = 1_700_000_000;
@@ -225,6 +246,40 @@ test('RTD binary snapshots preserve route identity, mode and individual fix ages
       error.transitReason === 'differential',
   );
 });
+
+for (const [feedId, routeId, expectedId, expectedMode, resolved] of [
+  ['mbta', 'Red', 'Red', 'subway', true],
+  ['mbta', '\tRed\n', 'Red', 'subway', true],
+  ['mbta', ' ', null, 'bus', false],
+  ['mbta', undefined, null, 'bus', false],
+  ['metrotransit-msp', ' 901 ', '901', 'tram', true],
+  ['metrotransit-msp', '\t\r\n', null, 'bus', false],
+  ['rtd-denver', 'NEW', 'NEW', 'unknown', false],
+  ['rtd-denver', ' NEW ', ' NEW ', 'unknown', false],
+  ['rtd-denver', 'bond', 'bond', 'unknown', false],
+]) {
+  test(`${feedId} binary snapshot classifies ${JSON.stringify(routeId)} with its own normalization policy`, () => {
+    const feed = getTransitFeed(feedId);
+    const snapshot = buildTransitSnapshot(
+      feed,
+      encodeFeed({
+        entities: [{ id: ' v1 ', routeId, lat: 40.015, lon: -105.2705 }],
+      }),
+      1_700_000_002_000,
+    );
+    assert.equal(snapshot.count, 1);
+    const [vehicle] = snapshot.vehicles;
+    assert.equal(vehicle.id, 'v1');
+    assert.deepEqual(
+      [
+        vehicle.routeId,
+        transitModeFor(feed, vehicle.routeId),
+        transitModeResolved(feed, vehicle.routeId),
+      ],
+      [expectedId, expectedMode, resolved],
+    );
+  });
+}
 
 for (const routeId of [' BOND ', ' 101T ', ' A ', '', ' ', '\t\r\n']) {
   test(`RTD binary snapshot keeps non-exact route ${JSON.stringify(routeId)} unresolved`, () => {

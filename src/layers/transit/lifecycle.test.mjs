@@ -3666,6 +3666,7 @@ test('actual Traffic, Bikeshare and Transit lifecycles retain sensitivity in eve
       _pointCollection: {},
       _overlayHost: { setVisible: noop },
       _cityRuntime: new Map(),
+      _failedCityIds: new Set(),
     },
     services: {
       sprites: { restoreSpriteOrder: noop },

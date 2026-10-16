@@ -132,7 +132,42 @@ test('decodes header and every VehiclePosition field the layer renders', () => {
   assert.equal(v.occupancy, 'FEW_SEATS_AVAILABLE');
 });
 
-test('route IDs retain nonblank wire strings without changing other string normalization', () => {
+test('default decoder trims route IDs and unrelated identifiers', () => {
+  const routeIds = [' Green-B ', ' BOND ', ' NEW ', '', ' ', '\t\r\n', null];
+  const bytes = encodeFeed(
+    routeIds.map((routeId, index) => ({
+      entityId: ` entity-${index} `,
+      vehicleId: ` vehicle-${index} `,
+      routeId,
+      tripId: ' trip-1 ',
+      stopId: ' stop-1 ',
+      label: ' label-1 ',
+      lat: 42.3,
+      lon: -71.1,
+    })),
+  );
+  for (const options of [undefined, { preserveRouteId: false }]) {
+    const snapshot = decodeVehiclePositions(bytes, options);
+    assert.deepEqual(
+      snapshot.vehicles.map(({ id, routeId, tripId, stopId, label }) => ({
+        id,
+        routeId,
+        tripId,
+        stopId,
+        label,
+      })),
+      routeIds.map((routeId, index) => ({
+        id: `vehicle-${index}`,
+        routeId: routeId?.trim() || null,
+        tripId: 'trip-1',
+        stopId: 'stop-1',
+        label: 'label-1',
+      })),
+    );
+  }
+});
+
+test('exact-route opt-in retains nonblank wire strings without changing other string normalization', () => {
   const routeIds = [
     ' BOND ',
     ' 101T ',
@@ -157,6 +192,7 @@ test('route IDs retain nonblank wire strings without changing other string norma
         lon: -71.1,
       })),
     ),
+    { preserveRouteId: true },
   );
   assert.deepEqual(
     snapshot.vehicles.map(({ id, routeId, tripId, stopId, label }) => ({

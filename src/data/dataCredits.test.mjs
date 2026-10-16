@@ -1,7 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { DATA_CREDITS, transitFeedCredit } from './dataCredits.js';
+import {
+  DATA_CREDITS,
+  NYC_DOT_DISCLAIMER,
+  transitFeedCredit,
+} from './dataCredits.js';
 import { getTransitFeed } from './transitFeeds.js';
 
 test('RTD has a text-only dynamic credit and documented license without endorsement', () => {
@@ -149,4 +153,12 @@ test('tile attribution follows source changes and viewers have independent owner
   hideOsmCredit(a, 'installations');
   assert.equal(a.credits.size, 0);
   assert.equal(b.credits.size, 1);
+});
+
+test('the NYC camera credit carries NYC DOT’s requested disclaimer', () => {
+  const credit = DATA_CREDITS.find((entry) => entry.key === 'nyc-cctv');
+  assert.ok(credit, 'NYC DOT camera frames must be credited');
+  assert.ok(credit.html.includes(NYC_DOT_DISCLAIMER));
+  assert.match(credit.html, /make no representation as to the accuracy/);
+  assert.match(credit.html, /observe posted signage/);
 });
