@@ -1023,6 +1023,16 @@ owners. Tuner calculations have a pure entry, with existing layer exports
 preserved. Destruction removes listeners and state subscriptions before ending
 tuning; a delayed Enable result cannot reveal or refocus removed controls.
 
+## Optional Boulder camera attribution
+
+The always-on `DATA_CREDITS` catalog includes City of Boulder and Boulder County
+Parks & Open Space acknowledgments in the Data attribution popover. Both label
+the configured pack optional and not enabled by default, disclose unresolved
+media reuse rights, and imply no endorsement. These static entries do not load
+the pack or fetch media; camera loading still requires `CCTV_SOURCES_FILE`.
+Per-camera panel credit and generic/coordinate-specific OSM attribution remain.
+See [Boulder configuration and rights caveats](BOULDER_CAMERAS.md).
+
 ## NYC DOT TMC CCTV source pack
 
 The CCTV catalog can add New York City traffic cameras from the NYC DOT
