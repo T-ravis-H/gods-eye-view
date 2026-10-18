@@ -1272,6 +1272,19 @@ normal fallback chain. The existing declared media size ceiling remains 64 MiB.
 camera is refused there with a JSON 404 and is served solely through
 `/api/cctv/frame` and its same-origin, `image/*`-only, size-capped fetch.
 
+The bounded HLS relay keeps the first advertised rendition while it works. If
+its child playlist or a segment download fails (including the unchanged 4 MiB
+segment cap), it can try lower-bandwidth renditions advertised by the same
+registered master, with at most three rendition attempts and one master read per
+poll. A failing active child is renewed through that master; a newly advertised
+URI at the same bandwidth can preserve quality before lower renditions are tried.
+Rendition changes clear upstream sequence mappings and insert a discontinuity.
+All references remain same-origin and redirects remain refused; malformed,
+encrypted, byte-range and fMP4 playlists do not trigger availability fallback.
+Existing session, lease, memory, timeout and idle limits remain unchanged. This
+is bounded availability fallback, not adaptive-bitrate streaming or a guarantee
+that every source has a compatible rendition.
+
 ## GBFS upstream bounds
 
 Station information is normalized in `src/sources/gbfsStations.js` for both the

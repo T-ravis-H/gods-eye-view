@@ -804,6 +804,7 @@
   "src/tooling/transitService.test.mjs",
   "src/sources/overpassFeatures.test.mjs",
   "src/data/cctvHlsStream.test.mjs",
+  "src/data/cctvHlsVariants.test.mjs",
   "src/layers/cctv/videoPlayback.test.mjs",
   "src/ui/cctvVideo.test.mjs",
   "src/ui/styles/weather.css",

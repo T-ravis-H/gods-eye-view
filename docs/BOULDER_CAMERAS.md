@@ -8,8 +8,11 @@ is regional coverage, not a municipal-boundary claim. City operation does not
 mean a site lies within Boulder city limits. Locality labels distinguish Superior,
 Hygiene/Longmont/Broomfield vicinity and the Boulder foothills.
 
-No default source pack, server, player or security limit is changed. This file
-contains URL references and descriptive/location metadata, **not footage,
+No default source pack, browser player or security limit is changed. The server's
+bounded HLS relay can fall back to lower-bandwidth renditions advertised by the
+registered master when a child playlist or capped segment download fails; it
+retains working quality and all existing byte, session and timeout limits.
+This file contains URL references and descriptive/location metadata, **not footage,
 recordings, posters or image captures**. It is not a complete camera census.
 
 ## Enable explicitly
